@@ -8,8 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -17,14 +18,17 @@
     <div class="app-layout">
         <aside class="workflow-sidebar">
             <div class="sidebar-header">
+                <div class="brand-icon">
+                    <i data-lucide="brain-circuit" style="width: 48px; height: 48px; color: var(--primary);"></i>
+                </div>
                 <h3>REASONING ENGINE</h3>
             </div>
             <div class="workflow-steps" id="workflowSteps">
-                <div class="step" data-step="planner">STRATEGY LOGIC</div>
-                <div class="step" data-step="search">GLOBAL RETRIEVAL</div>
-                <div class="step" data-step="translation">CROSS-LINGUAL ALIGNMENT</div>
-                <div class="step" data-step="synthesis">INTELLIGENCE SYNTHESIS</div>
-                <div class="step" data-step="mlops">VERIFICATION PROTOCOL</div>
+                <div class="step" data-step="planner"><i data-lucide="map"></i> STRATEGY LOGIC</div>
+                <div class="step" data-step="search"><i data-lucide="search"></i> GLOBAL RETRIEVAL</div>
+                <div class="step" data-step="translation"><i data-lucide="languages"></i> CROSS-LINGUAL ALIGNMENT</div>
+                <div class="step" data-step="synthesis"><i data-lucide="zap"></i> INTELLIGENCE SYNTHESIS</div>
+                <div class="step" data-step="mlops"><i data-lucide="shield-check"></i> VERIFICATION PROTOCOL</div>
             </div>
             <div class="live-logs" id="liveLogs">
                 <div class="log-entry">SYSTEM ONLINE. READY FOR ANALYSIS.</div>
@@ -34,9 +38,9 @@
         <main class="main-content">
             <header class="system-header">
                 <div class="intel-badges">
-                    <div class="intel-badge"><span>ENGINE</span> GEMINI 1.5</div>
-                    <div class="intel-badge"><span>INDEX</span> TAVILY GLOBAL</div>
-                    <div class="intel-badge"><span>REASONING</span> MULTI-AGENT</div>
+                    <div class="intel-badge"><i data-lucide="cpu" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i> <span>ENGINE</span> GEMINI 1.5</div>
+                    <div class="intel-badge"><i data-lucide="database" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i> <span>INDEX</span> TAVILY GLOBAL</div>
+                    <div class="intel-badge"><i data-lucide="users" style="width: 12px; height: 12px; vertical-align: middle; margin-right: 4px;"></i> <span>REASONING</span> MULTI-AGENT</div>
                 </div>
                 <div class="badge-v2">PROTOCOL V3.5</div>
             </header>
@@ -100,9 +104,9 @@
                 </details>
             </div>
 
-            <div id="loadingPlaceholder" class="placeholder-text"
-                style="text-align: center; margin-top: 5rem; color: var(--secondary); font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 900;">
-                AWAITING PARAMETERS TO INITIALIZE MISSION LOGIC...
+            <div id="loadingPlaceholder" class="loading-container">
+                <span class="loader"></span>
+                <div class="loading-text">INITIALIZING MISSION LOGIC...</div>
             </div>
         </main>
     </div>
@@ -164,11 +168,25 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.detail);
 
+                const loadingText = document.querySelector('.loading-text');
                 for (const log of data.workflow_logs) {
                     addLog(log);
-                    if (log.includes("Routing")) { setStepStatus('planner', 'completed'); setStepStatus('search', 'active'); }
-                    if (log.includes("SYNTHESIS")) { setStepStatus('search', 'completed'); setStepStatus('translation', 'completed'); setStepStatus('synthesis', 'active'); }
-                    if (log.includes("EVALUATION")) { setStepStatus('synthesis', 'completed'); setStepStatus('mlops', 'active'); }
+                    if (log.includes("Routing")) { 
+                        setStepStatus('planner', 'completed'); 
+                        setStepStatus('search', 'active'); 
+                        loadingText.innerText = "RETRIEVING GLOBAL DATA...";
+                    }
+                    if (log.includes("SYNTHESIS")) { 
+                        setStepStatus('search', 'completed'); 
+                        setStepStatus('translation', 'completed'); 
+                        setStepStatus('synthesis', 'active'); 
+                        loadingText.innerText = "SYNTHESIZING INTELLIGENCE...";
+                    }
+                    if (log.includes("EVALUATION")) { 
+                        setStepStatus('synthesis', 'completed'); 
+                        setStepStatus('mlops', 'active'); 
+                        loadingText.innerText = "VERIFYING PROTOCOL...";
+                    }
                     await new Promise(r => setTimeout(r, 600));
                 }
                 setStepStatus('mlops', 'completed');
@@ -248,6 +266,7 @@
 
         synthesizeBtn.addEventListener('click', runMission);
         queryInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runMission(); });
+        lucide.createIcons();
     </script>
 </body>
 
