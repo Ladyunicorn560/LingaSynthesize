@@ -1,0 +1,13 @@
+langchain
+langchain-openai
+langgraph
+langchain-community
+python-dotenv
+pydantic
+sentence-transformers
+pinecone-client
+fastapi
+uvicorn
+ragas
+ipykernel
+tavily-python

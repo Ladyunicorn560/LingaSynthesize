@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingaSynthesize | Premium Intelligence Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="mission-mode">
+    <div class="app-layout">
+        <aside class="workflow-sidebar">
+            <div class="sidebar-header">
+                <h3>REASONING ENGINE</h3>
+            </div>
+            <div class="workflow-steps" id="workflowSteps">
+                <div class="step" data-step="planner">STRATEGY LOGIC</div>
+                <div class="step" data-step="search">GLOBAL RETRIEVAL</div>
+                <div class="step" data-step="translation">CROSS-LINGUAL ALIGNMENT</div>
+                <div class="step" data-step="synthesis">INTELLIGENCE SYNTHESIS</div>
+                <div class="step" data-step="mlops">VERIFICATION PROTOCOL</div>
+            </div>
+            <div class="live-logs" id="liveLogs">
+                <div class="log-entry">SYSTEM ONLINE. READY FOR ANALYSIS.</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="system-header">
+                <div class="intel-badges">
+                    <div class="intel-badge"><span>ENGINE</span> GEMINI 1.5</div>
+                    <div class="intel-badge"><span>INDEX</span> TAVILY GLOBAL</div>
+                    <div class="intel-badge"><span>REASONING</span> MULTI-AGENT</div>
+                </div>
+                <div class="badge-v2">PROTOCOL V3.5</div>
+            </header>
+
+            <section class="control-center">
+                <div class="search-box">
+                    <input type="text" id="queryInput" placeholder="INPUT RESEARCH OBJECTIVE...">
+                    <button id="synthesizeBtn">RUN ANALYSIS</button>
+                </div>
+                <div class="expanded-queries" id="expandedQueries" style="margin-top: 1.5rem;"></div>
+            </section>
+
+            <div id="resultsWrapper" style="display: none;">
+                <section class="result-group">
+                    <div class="final-insight-banner">
+                        <h2>FINAL INTELLIGENCE INSIGHT</h2>
+                        <div class="final-insight-bullets" id="finalInsightBullets"></div>
+                    </div>
+
+                    <div class="hero-insight-grid" id="heroInsightGrid"></div>
+                </section>
+
+                <section class="proof-group">
+                    <div class="evidence-wall">
+                        <h3>SOURCE EVIDENCE LOG</h3>
+                        <div class="evidence-grid" id="evidenceGrid"></div>
+                    </div>
+
+                    <aside class="trust-panel">
+                        <div class="score-card">
+                            <h4>MISSION TRUST SCORE</h4>
+                            <div class="score-large" id="trustScore">--</div>
+                            <div class="reliability-label" id="reliabilityLabel">ANALYZING...</div>
+                        </div>
+
+                        <div class="lang-distribution">
+                            <h4>LANGUAGE COVERAGE</h4>
+                            <div class="lang-bars" id="langBars"></div>
+                        </div>
+                    </aside>
+                </section>
+
+                <details class="system-deep-dive">
+                    <summary>VIEW DETAILED TECHNICAL INTELLIGENCE REPORT</summary>
+                    <div class="report-area">
+                        <div class="report-tabs">
+                            <button class="tab-btn active" data-tab="combined">COMBINED REPORT</button>
+                            <button class="tab-btn" data-tab="german">GERMAN SOURCES</button>
+                            <button class="tab-btn" data-tab="japanese">JAPANESE SOURCES</button>
+                        </div>
+                        <div class="report-body" id="reportContent"></div>
+                    </div>
+
+                    <div class="intel-card"
+                        style="margin-top: 5rem; border-top: 1px solid var(--border); padding-top: 4rem;">
+                        <h4
+                            style="font-size: 0.75rem; letter-spacing: 4px; color: var(--primary); margin-bottom: 3rem; text-transform: uppercase; font-weight: 800;">
+                            AGENT REFINEMENT DEBATE</h4>
+                        <div id="debateLog"></div>
+                    </div>
+                </details>
+            </div>
+
+            <div id="loadingPlaceholder" class="placeholder-text"
+                style="text-align: center; margin-top: 5rem; color: var(--secondary); font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 900;">
+                AWAITING PARAMETERS TO INITIALIZE MISSION LOGIC...
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const synthesizeBtn = document.getElementById('synthesizeBtn');
+        const queryInput = document.getElementById('queryInput');
+        const liveLogs = document.getElementById('liveLogs');
+        const workflowSteps = document.querySelectorAll('.step');
+        const resultsWrapper = document.getElementById('resultsWrapper');
+        const finalInsightBullets = document.getElementById('finalInsightBullets');
+        const heroInsightGrid = document.getElementById('heroInsightGrid');
+        const evidenceGrid = document.getElementById('evidenceGrid');
+        const trustScore = document.getElementById('trustScore');
+        const reliabilityLabel = document.getElementById('reliabilityLabel');
+        const langBars = document.getElementById('langBars');
+        const reportContent = document.getElementById('reportContent');
+        const debateLog = document.getElementById('debateLog');
+        const expandedQueries = document.getElementById('expandedQueries');
+
+        let fullReportData = {};
+
+        function addLog(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-entry ${type}`;
+            div.innerText = msg;
+            liveLogs.appendChild(div);
+            liveLogs.scrollTop = liveLogs.scrollHeight;
+        }
+
+        function setStepStatus(stepName, status) {
+            workflowSteps.forEach(s => {
+                if (s.dataset.step === stepName) {
+                    s.classList.remove('active', 'completed');
+                    if (status === 'active') s.classList.add('active');
+                    if (status === 'completed') s.classList.add('completed');
+                }
+            });
+        }
+
+        async function runMission() {
+            const query = queryInput.value.trim();
+            if (!query) return;
+
+            resultsWrapper.style.display = 'none';
+            document.getElementById('loadingPlaceholder').style.display = 'block';
+            liveLogs.innerHTML = '';
+            addLog("REASONING: DEVELOPING GLOBAL STRATEGY...", "system");
+            setStepStatus('planner', 'active');
+            synthesizeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail);
+
+                for (const log of data.workflow_logs) {
+                    addLog(log);
+                    if (log.includes("Routing")) { setStepStatus('planner', 'completed'); setStepStatus('search', 'active'); }
+                    if (log.includes("SYNTHESIS")) { setStepStatus('search', 'completed'); setStepStatus('translation', 'completed'); setStepStatus('synthesis', 'active'); }
+                    if (log.includes("EVALUATION")) { setStepStatus('synthesis', 'completed'); setStepStatus('mlops', 'active'); }
+                    await new Promise(r => setTimeout(r, 600));
+                }
+                setStepStatus('mlops', 'completed');
+
+                const insightText = data.report.split('FINAL_INSIGHT:')[1]?.split('HERO_SUMMARY:')[0] || "";
+                finalInsightBullets.innerHTML = insightText.split('\n')
+                    .filter(l => l.trim().length > 5 && !l.includes('|') && !l.includes('---'))
+                    .map(l => `<div class="insight-bullet"><span>—</span> ${l.replace(/^[-*]\s*/, '')}</div>`)
+                    .join('');
+
+                const heroText = data.report.split('HERO_SUMMARY:')[1]?.split('EVIDENCE_LIST:')[0] || "";
+                heroInsightGrid.innerHTML = heroText.split('\n')
+                    .filter(l => l.trim().length > 5 && !l.includes('|') && !l.includes('---'))
+                    .slice(0, 2)
+                    .map((l, i) => `
+                        <div class="hero-card">
+                            <h4>KEY FINDING ${i + 1}</h4>
+                            <p>${l.replace(/^[-*]\s*/, '')}</p>
+                        </div>
+                    `).join('');
+
+                const evidenceText = data.report.split('EVIDENCE_LIST:')[1]?.split('GERMAN_INSIGHTS:')[0] || "";
+                evidenceGrid.innerHTML = evidenceText.split('\n')
+                    .filter(l => l.trim().length > 5)
+                    .map(l => {
+                        const langMatch = l.match(/\[(JP|DE|EN)\]/) || ["", "GLOBAL"];
+                        return `
+                            <div class="evidence-pill">
+                                <span>${l.replace(/\[.*?\]/, '').trim()}</span>
+                                <span class="lang-tag">${langMatch[1]}</span>
+                            </div>
+                        `;
+                    }).join('');
+
+                const score = data.eval_scores.faithfulness || 0;
+                trustScore.innerText = score.toFixed(2);
+                reliabilityLabel.innerText = score > 0.8 ? "HIGH RELIABILITY" : "MINOR UNCERTAINTY";
+                reliabilityLabel.style.color = score > 0.8 ? "var(--success)" : "var(--warning)";
+
+                langBars.innerHTML = '';
+                const total = Object.values(data.language_stats).reduce((a, b) => a + b, 0);
+                for (const [lang, count] of Object.entries(data.language_stats)) {
+                    const perc = (count / total) * 100;
+                    langBars.innerHTML += `
+                        <div class="lang-bar-item">
+                            <div class="lang-bar-label"><span>${lang}</span> <span>${count} SOURCES</span></div>
+                            <div class="lang-bar-outer"><div class="lang-bar-inner" style="width: ${perc}%"></div></div>
+                        </div>
+                    `;
+                }
+
+                fullReportData = {
+                    combined: data.report.split('COMBINED_INSIGHTS:')[1] || data.report,
+                    german: data.report.split('GERMAN_INSIGHTS:')[1]?.split('JAPANESE_INSIGHTS:')[0] || "None",
+                    japanese: data.report.split('JAPANESE_INSIGHTS:')[1]?.split('COMBINED_INSIGHTS:')[0] || "None"
+                };
+                reportContent.innerText = fullReportData.combined;
+                debateLog.innerHTML = data.agent_debate.map(d => `<div class="debate-entry">${d}</div>`).join('');
+                expandedQueries.innerHTML = data.expanded_queries.map(q => `<span class="query-tag">${q}</span>`).join('');
+
+                document.getElementById('loadingPlaceholder').style.display = 'none';
+                resultsWrapper.style.display = 'block';
+
+            } catch (err) {
+                addLog(`ERROR: ${err.message}`, "error");
+            } finally {
+                synthesizeBtn.disabled = false;
+            }
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                reportContent.innerText = fullReportData[btn.dataset.tab];
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+            });
+        });
+
+        synthesizeBtn.addEventListener('click', runMission);
+        queryInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runMission(); });
+    </script>
+</body>
+
+</html>
