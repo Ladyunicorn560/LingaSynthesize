@@ -61,8 +61,3 @@ The system operates as a **Reasoning Engine** with three primary nodes:
 
 ---
 
-### 🏛️ Visual Identity
-The interface follows a **Midnight Navy & Champagne Gold** aesthetic, optimized for professional research environments. It prioritizes data density, typography precision, and hierarchical clarity.
-
----
-*Developed as an experiment in Multi-Agent Cross-Lingual RAG.*
