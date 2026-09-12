@@ -158,6 +158,26 @@
             setStepStatus('planner', 'active');
             synthesizeBtn.disabled = true;
 
+            const loadingText = document.querySelector('.loading-text');
+            let stepIdx = 0;
+            const progressSteps = [
+                { step: 'planner', text: 'DEVELOPING GLOBAL STRATEGY...', log: 'REASONING: Multi-agent search strategy initiated.' },
+                { step: 'search', text: 'RETRIEVING GLOBAL DATA (EN, JP, DE)...', log: 'STATUS: Neutralizing language barriers...' },
+                { step: 'translation', text: 'ALIGNING CROSS-LINGUAL CONTEXT...', log: 'RETRIEVAL: Integrating global sources...' },
+                { step: 'synthesis', text: 'SYNTHESIZING INTELLIGENCE...', log: 'BRAIN: Synthesizing cross-lingual insights...' }
+            ];
+
+            const progressInterval = setInterval(() => {
+                if (stepIdx < progressSteps.length) {
+                    const curr = progressSteps[stepIdx];
+                    loadingText.innerText = curr.text;
+                    addLog(curr.log);
+                    setStepStatus(curr.step, 'active');
+                    if (stepIdx > 0) setStepStatus(progressSteps[stepIdx - 1].step, 'completed');
+                    stepIdx++;
+                }
+            }, 3500);
+
             try {
                 const response = await fetch('/synthesize', {
                     method: 'POST',
@@ -166,29 +186,16 @@
                 });
 
                 const data = await response.json();
+                clearInterval(progressInterval);
                 if (!response.ok) throw new Error(data.detail);
 
-                const loadingText = document.querySelector('.loading-text');
                 for (const log of data.workflow_logs) {
                     addLog(log);
-                    if (log.includes("Routing")) { 
-                        setStepStatus('planner', 'completed'); 
-                        setStepStatus('search', 'active'); 
-                        loadingText.innerText = "RETRIEVING GLOBAL DATA...";
-                    }
-                    if (log.includes("SYNTHESIS")) { 
-                        setStepStatus('search', 'completed'); 
-                        setStepStatus('translation', 'completed'); 
-                        setStepStatus('synthesis', 'active'); 
-                        loadingText.innerText = "SYNTHESIZING INTELLIGENCE...";
-                    }
-                    if (log.includes("EVALUATION")) { 
-                        setStepStatus('synthesis', 'completed'); 
-                        setStepStatus('mlops', 'active'); 
-                        loadingText.innerText = "VERIFYING PROTOCOL...";
-                    }
-                    await new Promise(r => setTimeout(r, 600));
                 }
+                setStepStatus('planner', 'completed');
+                setStepStatus('search', 'completed');
+                setStepStatus('translation', 'completed');
+                setStepStatus('synthesis', 'completed');
                 setStepStatus('mlops', 'completed');
 
                 const insightText = data.report.split('FINAL_INSIGHT:')[1]?.split('HERO_SUMMARY:')[0] || "";
