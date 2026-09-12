@@ -6,26 +6,31 @@ from langchain_core.messages import HumanMessage, SystemMessage
 class MultiLingualSearch:
     def __init__(self):
         self.search = TavilySearchResults(max_results=5)
-        self.llm = ChatGoogleGenerativeAI(model="gemini-flash-latest")
+        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_retries=5)
 
     def translate_query(self, query: str, target_lang: str):
-        prompt = f"Translate the following search query into {target_lang}. Only provide the translated text: {query}"
-        response = self.llm.invoke([HumanMessage(content=prompt)])
-        content = response.content
-        
-        # Smart extraction for complex Gemini responses
-        if isinstance(content, list):
-            text_parts = []
-            for part in content:
-                if isinstance(part, dict) and "text" in part:
-                    text_parts.append(part["text"])
-                elif isinstance(part, str):
-                    text_parts.append(part)
-                else:
-                    text_parts.append(str(part))
-            content = " ".join(text_parts)
-        
-        return content.strip()
+        try:
+            prompt = f"Translate the following search query into {target_lang}. Only provide the translated text: {query}"
+            response = self.llm.invoke([HumanMessage(content=prompt)])
+            content = response.content
+            
+            # Smart extraction for complex Gemini responses
+            if isinstance(content, list):
+                text_parts = []
+                for part in content:
+                    if isinstance(part, dict) and "text" in part:
+                        text_parts.append(part["text"])
+                    elif isinstance(part, str):
+                        text_parts.append(part)
+                    else:
+                        text_parts.append(str(part))
+                content = " ".join(text_parts)
+            
+            translated = content.strip()
+            return translated if translated else query
+        except Exception as e:
+            print(f"Translation fallback for {target_lang}: {e}")
+            return query
 
     def _search_single_language(self, query: str, lang: str):
         search_query = query

@@ -22,7 +22,7 @@ load_dotenv()
 app = FastAPI(title="LingaSynthesize API")
 
 # --- INITIALIZE TOOLS & LLM ---
-llm = ChatGoogleGenerativeAI(model="gemini-flash-latest")
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_retries=5)
 search_tool = MultiLingualSearch()
 
 # --- NODES ---
