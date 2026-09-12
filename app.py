@@ -195,6 +195,7 @@ def open_browser():
     webbrowser.open("http://localhost:8000")
 
 if __name__ == "__main__":
-    # Start a timer to open the browser after 1.5 seconds
-    Timer(1.5, open_browser).start()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    if "PORT" not in os.environ:
+        Timer(1.5, open_browser).start()
+    uvicorn.run(app, host="0.0.0.0", port=port)

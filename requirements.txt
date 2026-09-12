@@ -1,5 +1,6 @@
 langchain
 langchain-openai
+langchain-google-genai
 langgraph
 langchain-community
 python-dotenv
@@ -9,5 +10,6 @@ pinecone-client
 fastapi
 uvicorn
 ragas
+datasets
 ipykernel
 tavily-python
