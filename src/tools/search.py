@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 class MultiLingualSearch:
     def __init__(self):
         self.search = TavilySearchResults(max_results=5)
-        self.llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_retries=5)
+        self.llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", max_retries=3)
 
     def translate_query(self, query: str, target_lang: str):
         try:
