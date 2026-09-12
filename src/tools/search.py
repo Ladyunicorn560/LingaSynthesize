@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -26,20 +27,33 @@ class MultiLingualSearch:
         
         return content.strip()
 
-    def perform_search(self, query: str, languages=["English", "Japanese", "German"]):
-        all_results = []
-        for lang in languages:
-            search_query = query
-            if lang != "English":
+    def _search_single_language(self, query: str, lang: str):
+        search_query = query
+        if lang != "English":
+            try:
                 search_query = self.translate_query(query, lang)
-            
-            print(f"Searching in {lang}: {search_query}")
+            except Exception as e:
+                print(f"Translation warning for {lang}: {e}")
+        
+        print(f"Searching in {lang}: {search_query}")
+        lang_results = []
+        try:
             results = self.search.invoke({"query": search_query})
             for r in results:
                 if isinstance(r, dict):
                     r['language'] = lang
-                    all_results.append(r)
+                    lang_results.append(r)
                 else:
-                    all_results.append({"content": str(r), "language": lang, "url": "N/A"})
+                    lang_results.append({"content": str(r), "language": lang, "url": "N/A"})
+        except Exception as e:
+            print(f"Search warning for {lang}: {e}")
+        return lang_results
+
+    def perform_search(self, query: str, languages=["English", "Japanese", "German"]):
+        all_results = []
+        with ThreadPoolExecutor(max_workers=len(languages)) as executor:
+            futures = [executor.submit(self._search_single_language, query, lang) for lang in languages]
+            for future in futures:
+                all_results.extend(future.result())
             
         return all_results
