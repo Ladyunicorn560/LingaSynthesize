@@ -1,6 +1,4 @@
-from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevancy, context_precision
-from datasets import Dataset
+# Ragas imports can be dynamically imported if real evaluation is enabled
 
 def evaluate_response(query: str, context: list[str], answer: str):
     """
