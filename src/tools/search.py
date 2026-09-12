@@ -40,7 +40,10 @@ class MultiLingualSearch:
             except Exception as e:
                 print(f"Translation warning for {lang}: {e}")
         
-        print(f"Searching in {lang}: {search_query}")
+        try:
+            print(f"Searching in {lang}: {search_query}".encode('utf-8', 'replace').decode('utf-8'))
+        except Exception:
+            print(f"Searching in {lang}")
         lang_results = []
         try:
             results = self.search.invoke({"query": search_query})
